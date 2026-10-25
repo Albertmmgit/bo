@@ -1,0 +1,197 @@
+// ─── Variables ────────────────────────────────────────────────────────────────
+$topbar-height: 60px;
+$sidebar-width: 240px;
+$sidebar-collapsed-width: 64px;
+$primary: #1a73e8;
+$primary-dark: #1557b0;
+$surface: #ffffff;
+$surface-alt: #f8f9fa;
+$border: #e0e0e0;
+$text-primary: #202124;
+$text-secondary: #5f6368;
+$active-bg: #e8f0fe;
+$active-color: $primary;
+$transition: 0.25s ease;
+
+// ─── Shell layout ─────────────────────────────────────────────────────────────
+.app-shell {
+  display: grid;
+  grid-template-areas:
+    "topbar topbar"
+    "sidebar content";
+  grid-template-rows: $topbar-height 1fr;
+  grid-template-columns: $sidebar-width 1fr;
+  height: 100vh;
+  overflow: hidden;
+  transition: grid-template-columns $transition;
+
+  &.sidebar-collapsed {
+    grid-template-columns: $sidebar-collapsed-width 1fr;
+
+    .nav-item__label {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+
+    .topbar__brand {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+  }
+}
+
+// ─── Topbar ───────────────────────────────────────────────────────────────────
+.topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  background: $surface;
+  border-bottom: 1px solid $border;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__brand {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $primary;
+    white-space: nowrap;
+    transition: opacity $transition, width $transition;
+  }
+}
+
+// ─── Botones icono ─────────────────────────────────────────────────────────────
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: $text-secondary;
+  transition: background $transition;
+
+  &:hover {
+    background: $surface-alt;
+    color: $text-primary;
+  }
+}
+
+.hamburger,
+.settings-icon {
+  line-height: 1;
+  user-select: none;
+}
+
+// ─── User info ────────────────────────────────────────────────────────────────
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 0.9rem;
+  color: $text-primary;
+  white-space: nowrap;
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+.sidebar {
+  grid-area: sidebar;
+  background: $surface;
+  border-right: 1px solid $border;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  &__nav {
+    padding: 1rem 0;
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      margin: 2px 8px;
+    }
+  }
+}
+
+// ─── Nav items ────────────────────────────────────────────────────────────────
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: $text-secondary;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background $transition, color $transition;
+
+  &:hover {
+    background: $surface-alt;
+    color: $text-primary;
+  }
+
+  &.active {
+    background: $active-bg;
+    color: $active-color;
+    font-weight: 600;
+  }
+
+  &__icon {
+    font-size: 1.15rem;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+
+  &__label {
+    transition: opacity $transition, width $transition;
+  }
+}
+
+// ─── Main content ─────────────────────────────────────────────────────────────
+.main-content {
+  grid-area: content;
+  overflow-y: auto;
+  background: $surface-alt;
+}

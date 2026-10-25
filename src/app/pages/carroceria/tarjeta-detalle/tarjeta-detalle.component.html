@@ -1,0 +1,206 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-panel" role="dialog" aria-modal="true">
+
+    <!-- Barra superior del modal -->
+    <div class="modal-topbar" [style.background]="tableroColor">
+      <div class="modal-topbar__etiquetas">
+        @for (etiqueta of tarjeta.etiquetas; track etiqueta.id) {
+          <span class="etiqueta-chip" [style.background]="etiqueta.color">
+            {{ etiqueta.texto }}
+            <button class="btn-remove-etq" (click)="removerEtiqueta(etiqueta.id, $event)">✕</button>
+          </span>
+        }
+
+        <!-- Botón para añadir/asignar etiquetas a la tarjeta -->
+        <div class="etq-dropdown-wrap">
+          <button class="btn-add-etq" (click)="selectorEtiquetasAbierto = !selectorEtiquetasAbierto">
+            + Etiqueta
+          </button>
+
+          @if (selectorEtiquetasAbierto) {
+            <div class="etq-dropdown" (click)="$event.stopPropagation()">
+              <div class="etq-dropdown-header">Asignar Etiquetas</div>
+              <div class="etq-dropdown-list">
+                @for (etq of todasLasEtiquetas; track etq.id) {
+                  <button
+                    class="etq-option"
+                    [class.active]="tieneEtiqueta(etq)"
+                    (click)="toggleEtiqueta(etq)"
+                  >
+                    <span class="etq-dot" [style.background]="etq.color"></span>
+                    <span class="etq-text">{{ etq.texto }}</span>
+                    @if (tieneEtiqueta(etq)) {
+                      <span class="check-mark">✓</span>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-delete-card" (click)="eliminarTarjeta()" title="Eliminar tarjeta">
+          🗑️ Eliminar
+        </button>
+        <button class="btn-cerrar" (click)="cerrar.emit()" title="Cerrar (Esc)">✕</button>
+      </div>
+    </div>
+
+    <!-- Contenido del modal: dos columnas -->
+    <div class="modal-body">
+
+      <!-- ══════════ PANEL PRINCIPAL (izquierda) ══════════ -->
+      <div class="panel-principal">
+
+        <h2 class="tarjeta-titulo">{{ tarjeta.titulo }}</h2>
+
+        <!-- Meta: referencia, prioridad, fecha, incidencia -->
+        <div class="tarjeta-meta">
+          @if (tarjeta.descripcion) {
+            <div class="meta-item">
+              <span class="meta-icon">📍</span>
+              <span class="meta-text">{{ tarjeta.descripcion }}</span>
+            </div>
+          }
+          <div class="meta-item">
+            <span class="meta-icon">🚦</span>
+            <span class="prioridad" [class]="prioridadClass">{{ prioridadLabel }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-icon">📅</span>
+            <span class="meta-text">Creada el {{ formatearFecha(tarjeta.fechaCreacion) }}</span>
+          </div>
+
+          <!-- Selector de Incidencia -->
+          <div class="meta-item meta-incidencia">
+            <span class="meta-icon">⚠️</span>
+            <span class="meta-label">Incidencia:</span>
+            <select
+              [(ngModel)]="tarjeta.incidencia"
+              class="incidencia-select"
+              [class.has-issue]="tarjeta.incidencia && tarjeta.incidencia !== 'Sin incidencia'"
+            >
+              @for (inc of incidenciasDisponibles; track inc) {
+                <option [value]="inc">{{ inc }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Descripción detallada editable -->
+        <section class="seccion">
+          <div class="seccion__header">
+            <h4 class="seccion__titulo">
+              <span>📄</span> Descripción
+            </h4>
+            @if (!editandoDescripcion) {
+              <button class="btn-edit-desc" (click)="activarEdicionDescripcion()">
+                ✏️ Editar
+              </button>
+            }
+          </div>
+
+          @if (editandoDescripcion) {
+            <div class="desc-editor">
+              <textarea
+                [(ngModel)]="descripcionDetalleBorrador"
+                rows="6"
+                placeholder="Escribe la descripción de la tarjeta..."
+                class="desc-textarea"
+              ></textarea>
+              <div class="desc-editor__actions">
+                <button class="btn btn-secondary btn-sm" (click)="cancelarEdicionDescripcion()">
+                  Cancelar
+                </button>
+                <button class="btn btn-primary btn-sm" (click)="guardarDescripcion()">
+                  Guardar
+                </button>
+              </div>
+            </div>
+          } @else {
+            @if (tarjeta.descripcionDetalle) {
+              <div class="descripcion-texto" (click)="activarEdicionDescripcion()" title="Haz clic para editar">
+                @for (parrafo of tarjeta.descripcionDetalle.split('\n\n'); track $index) {
+                  <p>{{ parrafo }}</p>
+                }
+              </div>
+            } @else {
+              <p class="sin-contenido" (click)="activarEdicionDescripcion()" style="cursor: pointer;">
+                Sin descripción detallada. <em>Haz clic aquí para añadir una...</em>
+              </p>
+            }
+          }
+        </section>
+
+      </div>
+
+      <!-- ══════════ PANEL COMENTARIOS (derecha) ══════════ -->
+      <div class="panel-comentarios">
+        <h4 class="comentarios-titulo">
+          💬 Comentarios
+          @if (tarjeta.comentarios.length > 0) {
+            <span class="badge">{{ tarjeta.comentarios.length }}</span>
+          }
+        </h4>
+
+        <!-- Lista de comentarios -->
+        <div class="comentarios-lista">
+          @if (tarjeta.comentarios.length === 0) {
+            <div class="sin-comentarios">
+              <span>🗨️</span>
+              <p>Sin comentarios todavía.<br>¡Sé el primero!</p>
+            </div>
+          }
+
+          @for (comentario of tarjeta.comentarios; track comentario.id) {
+            <div class="comentario">
+              <div class="comentario__avatar" [style.background]="comentario.colorAvatar">
+                {{ comentario.iniciales }}
+              </div>
+              <div class="comentario__body">
+                <div class="comentario__header">
+                  <strong class="comentario__autor">{{ comentario.autor }}</strong>
+                  <span class="comentario__fecha" [title]="formatearFecha(comentario.fecha)">
+                    {{ formatearFechaRelativa(comentario.fecha) }}
+                  </span>
+                </div>
+                <p class="comentario__texto">{{ comentario.texto }}</p>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Nuevo comentario -->
+        <div class="nuevo-comentario">
+          <div class="nc__avatar" [style.background]="currentUser.color">
+            {{ currentUser.iniciales }}
+          </div>
+          <div class="nc__cuerpo">
+            <textarea
+              class="nc__textarea"
+              [(ngModel)]="nuevoComentario"
+              (keydown)="onTextareaKeydown($event)"
+              placeholder="Escribe un comentario..."
+              rows="3"
+            ></textarea>
+            <div class="nc__footer">
+              <span class="nc__hint">⌘ + Enter para enviar</span>
+              <button
+                class="nc__btn"
+                (click)="enviarComentario()"
+                [disabled]="!nuevoComentario.trim()"
+                [style.background]="tableroColor"
+              >
+                Enviar
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

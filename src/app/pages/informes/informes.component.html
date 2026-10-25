@@ -1,0 +1,237 @@
+<div class="informes-container">
+  <!-- Cabecera de Informes -->
+  <div class="informes-header">
+    <div>
+      <h1>📊 Informes y Analítica Operativa</h1>
+      <p class="subtitle">Métricas de ciclo de vida de tarjetas, tiempos de resolución y registro de incidencias</p>
+    </div>
+
+    <!-- Selector de Segmentación por Módulo (Carrocería vs Renting) -->
+    <div class="module-selector">
+      <span class="selector-label">Módulo:</span>
+      <div class="selector-pill-group">
+        <button
+          class="pill-btn"
+          [class.active]="moduloSeleccionado === 'todos'"
+          (click)="seleccionarModulo('todos')"
+        >
+          🌐 Todos
+        </button>
+        <button
+          class="pill-btn"
+          [class.active]="moduloSeleccionado === 'carroceria'"
+          (click)="seleccionarModulo('carroceria')"
+        >
+          🔧 Carrocería
+        </button>
+        <button
+          class="pill-btn"
+          [class.active]="moduloSeleccionado === 'renting'"
+          (click)="seleccionarModulo('renting')"
+        >
+          🚗 Renting
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Métricas KPI superiores reactivas al módulo -->
+  <div class="metrics-grid">
+    @for (m of metrics; track m.title) {
+      <div class="metric-card">
+        <div class="metric-icon" [style.background-color]="m.color + '15'" [style.color]="m.color">
+          {{ m.icon }}
+        </div>
+        <div class="metric-info">
+          <span class="metric-title">{{ m.title }}</span>
+          <span class="metric-value">{{ m.value }}</span>
+          <span class="metric-trend" [class.trend-up]="m.trendUp">
+            {{ m.trend }}
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Barra de pestañas para alternar entre informes -->
+  <div class="tabs-bar">
+    <button
+      class="tab-btn"
+      [class.active]="pestanaActiva === 'tiempos'"
+      (click)="cambiarPestana('tiempos')"
+    >
+      ⏱️ Informe: Tiempo Creación → Archivo ({{ tiemposFiltrados.length }})
+    </button>
+    <button
+      class="tab-btn"
+      [class.active]="pestanaActiva === 'incidencias'"
+      (click)="cambiarPestana('incidencias')"
+    >
+      ⚠️ Informe: Registro de Incidencias ({{ incidenciasFiltradas.length }})
+    </button>
+  </div>
+
+  <!-- ════════════════ INFORME 1: TIEMPOS ENTRE CREACIÓN Y ARCHIVO ════════════════ -->
+  @if (pestanaActiva === 'tiempos') {
+    <div class="section-card">
+      <div class="section-header">
+        <div class="header-with-badge">
+          <div>
+            <h2>⏱️ Tiempo Transcurrido entre Creación y Archivo</h2>
+            <p class="section-desc">
+              Detalle cronológico desde que se abre una tarjeta hasta que se marca completada con el check redondo.
+            </p>
+          </div>
+          <span class="module-filter-indicator" [attr.data-modulo]="moduloSeleccionado">
+            Vista: {{ moduloSeleccionado === 'todos' ? 'Global' : (moduloSeleccionado === 'carroceria' ? 'Carrocería' : 'Renting') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Área / Módulo</th>
+              <th>Tarjeta</th>
+              <th>Tablero Origen</th>
+              <th>Columna Cierre</th>
+              <th>Fecha Creación</th>
+              <th>Fecha Archivado</th>
+              <th class="text-right">Tiempo de Ciclo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of tiemposFiltrados; track item.tarjeta.id) {
+              <tr>
+                <td>
+                  <span class="module-chip" [class.module-chip--renting]="item.modulo === 'Renting'">
+                    {{ item.modulo === 'Carrocería' ? '🔧 Carrocería' : '🚗 Renting' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="card-cell">
+                    <span class="card-title">{{ item.tarjeta.titulo }}</span>
+                    <span class="card-sub">{{ item.tarjeta.descripcion || '-' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="tablero-tag">{{ item.tarjeta.origenTableroNombre || 'General' }}</span>
+                </td>
+                <td>
+                  <span class="status-badge status-badge--success">{{ item.tarjeta.origenColumnaNombre || 'Completado' }}</span>
+                </td>
+                <td class="font-mono text-muted">{{ formatearFecha(item.tarjeta.fechaCreacion) }}</td>
+                <td class="font-mono text-muted">{{ formatearFecha(item.tarjeta.fechaArchivado!) }}</td>
+                <td class="text-right">
+                  <span class="time-pill" [class.time-pill--long]="item.dias >= 5">
+                    ⏱️ {{ item.tiempoFormateado }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">
+                  No hay tarjetas archivadas registradas en el módulo seleccionado.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- ════════════════ INFORME 2: ANÁLISIS DE INCIDENCIAS ════════════════ -->
+  @if (pestanaActiva === 'incidencias') {
+    <div class="section-card">
+      <div class="section-header">
+        <div class="header-with-badge">
+          <div>
+            <h2>⚠️ Distribución y Detalle de Incidencias Operativas</h2>
+            <p class="section-desc">Tarjetas activas y archivadas que han presentado bloqueos o incidencias clasificadas.</p>
+          </div>
+          <span class="module-filter-indicator" [attr.data-modulo]="moduloSeleccionado">
+            Vista: {{ moduloSeleccionado === 'todos' ? 'Global' : (moduloSeleccionado === 'carroceria' ? 'Carrocería' : 'Renting') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Gráfico de barras de desglose -->
+      <div class="incidencias-summary-grid">
+        @for (est of estadisticasIncidencias; track est.tipo) {
+          <div class="inc-stat-card">
+            <div class="inc-stat-top">
+              <span class="inc-name">{{ est.tipo }}</span>
+              <span class="inc-count" [style.background]="est.color">{{ est.cantidad }}</span>
+            </div>
+            <div class="inc-progress-bar">
+              <div class="inc-progress-fill" [style.width.%]="est.porcentaje" [style.background]="est.color"></div>
+            </div>
+            <span class="inc-pct">{{ est.porcentaje }}% de incidencias</span>
+          </div>
+        }
+      </div>
+
+      <!-- Tabla detallada de tarjetas con incidencias -->
+      <div class="table-responsive" style="margin-top: 1.5rem;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Área / Módulo</th>
+              <th>Tarjeta</th>
+              <th>Origen / Tablero</th>
+              <th>Tipo de Incidencia</th>
+              <th>Prioridad</th>
+              <th>Estado Actual</th>
+              <th>Fecha Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of incidenciasFiltradas; track row.tarjeta.id) {
+              <tr>
+                <td>
+                  <span class="module-chip" [class.module-chip--renting]="row.modulo === 'Renting'">
+                    {{ row.modulo === 'Carrocería' ? '🔧 Carrocería' : '🚗 Renting' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="card-cell">
+                    <span class="card-title">{{ row.tarjeta.titulo }}</span>
+                    <span class="card-sub">{{ row.tarjeta.descripcion || '-' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="tablero-tag">{{ row.origen }}</span>
+                </td>
+                <td>
+                  <span class="incidencia-badge-report">
+                    ⚠️ {{ row.incidencia }}
+                  </span>
+                </td>
+                <td>
+                  <span class="prioridad-pill" [class]="'p--' + row.tarjeta.prioridad">
+                    {{ row.tarjeta.prioridad }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-badge" [class.status-badge--success]="row.estado === 'Archivada'">
+                    {{ row.estado }}
+                  </span>
+                </td>
+                <td class="font-mono text-muted">{{ formatearFecha(row.tarjeta.fechaCreacion) }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="empty-state">
+                  No se han registrado incidencias en el módulo seleccionado.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>

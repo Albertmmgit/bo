@@ -1,0 +1,49 @@
+<div class="app-shell" [class.sidebar-collapsed]="!sidebarOpen">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <button class="btn-icon" (click)="toggleSidebar()" title="Alternar menú">
+        <span class="hamburger">☰</span>
+      </button>
+      <span class="topbar__brand">BO</span>
+    </div>
+
+    <div class="topbar__right">
+      <div class="user-info">
+        <span class="user-avatar">{{ userName.charAt(0) }}</span>
+        <span class="user-name">{{ userName }}</span>
+      </div>
+      <button class="btn-icon" (click)="openSettings()" title="Configuración">
+        <span class="settings-icon">⚙️</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <nav class="sidebar__nav">
+      <ul>
+        @for (item of menuItems; track item.route) {
+          <li>
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              class="nav-item"
+              title="{{ item.label }}"
+            >
+              <span class="nav-item__icon">{{ item.icon }}</span>
+              <span class="nav-item__label">{{ item.label }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <router-outlet />
+  </main>
+
+</div>

@@ -1,0 +1,292 @@
+// ─── Estructura de la página con Barra Superior Fija ────────────────────────
+.garantias-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: #f8f9fa;
+  position: relative;
+}
+
+// ─── BARRA SUPERIOR FIJA (STICKY) ───────────────────────────────────────────
+.garantias-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  border-bottom: 1px solid #e8eaed;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  flex-shrink: 0;
+
+  .topbar-left {
+    .title-with-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #202124;
+      }
+
+      .badge-count {
+        background: #e8f0fe;
+        color: #1a73e8;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+      }
+    }
+
+    .subtitle {
+      margin: 0.2rem 0 0;
+      font-size: 0.85rem;
+      color: #5f6368;
+    }
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+// ─── Botones ────────────────────────────────────────────────────────────────
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+
+  &.btn-primary {
+    background: #1a73e8;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(26, 115, 232, 0.3);
+
+    &:hover {
+      background: #1557b0;
+      box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
+    }
+  }
+
+  &.btn-secondary {
+    background: #ffffff;
+    border-color: #dadce0;
+    color: #3c4043;
+
+    &:hover {
+      background: #f1f3f4;
+      border-color: #bdc1c6;
+    }
+  }
+}
+
+// ─── Contenedor y Tabla con Scroll Independiente ─────────────────────────────
+.table-container {
+  flex: 1;
+  overflow: auto;
+  padding: 1.25rem 1.5rem;
+}
+
+.table-wrapper {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e8eaed;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+}
+
+.editable-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+  min-width: 1100px;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #f1f3f4;
+
+    th {
+      padding: 0.75rem 0.85rem;
+      text-align: left;
+      font-weight: 600;
+      color: #3c4043;
+      border-bottom: 2px solid #dadce0;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f1f3f4;
+      transition: background 0.15s;
+
+      &:hover {
+        background: #fbfbfc;
+      }
+    }
+  }
+
+  td {
+    padding: 0.4rem 0.6rem;
+    vertical-align: middle;
+  }
+}
+
+// ─── Estilos de Celdas y Campos Editables ─────────────────────────────────────
+.cell-readonly {
+  white-space: nowrap;
+
+  .expediente-pill {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    background: #f1f3f4;
+    color: #1f1f1f;
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    user-select: all;
+  }
+}
+
+.cell-editable {
+  padding: 0.25rem 0.4rem;
+}
+
+.input-table {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.86rem;
+  color: #202124;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #dadce0;
+    background: #ffffff;
+  }
+
+  &:focus {
+    border-color: #1a73e8;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.15);
+  }
+
+  &.input-matricula {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-family: monospace;
+    letter-spacing: 0.05em;
+  }
+
+  &.text-right {
+    text-align: right;
+  }
+
+  &.font-mono {
+    font-family: monospace;
+  }
+}
+
+.select-table {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: #f8f9fa;
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover, &:focus {
+    border-color: #dadce0;
+    background: #ffffff;
+  }
+
+  &[data-estado="En Revisión"] { background: #fef7e0; color: #b06000; }
+  &[data-estado="Aprobada"] { background: #e6f4ea; color: #137333; }
+  &[data-estado="Pendiente Piezas"] { background: #e8f0fe; color: #1a73e8; }
+  &[data-estado="Rechazada"] { background: #fce8e6; color: #c5221f; }
+  &[data-estado="Completada"] { background: #f1f3f4; color: #5f6368; }
+}
+
+.cell-actions {
+  text-align: center;
+  width: 40px;
+
+  .btn-delete {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0.3rem;
+    border-radius: 4px;
+    opacity: 0.4;
+    transition: all 0.15s;
+
+    &:hover {
+      opacity: 1;
+      background: #fce8e6;
+    }
+  }
+}
+
+// ─── Anchos y Tamaños de Columnas ─────────────────────────────────────────────
+.col-expediente { width: 140px; }
+.col-matricula  { width: 110px; }
+.col-vehiculo   { width: 180px; }
+.col-cliente    { width: 170px; }
+.col-averia     { width: 220px; }
+.col-estado     { width: 150px; }
+.col-coste      { width: 110px; }
+.col-fecha      { width: 130px; }
+.col-obs        { min-width: 200px; }
+.col-actions    { width: 44px; }
+
+// ─── Toast de Notificación ────────────────────────────────────────────────────
+.toast-notification {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: #202124;
+  color: #ffffff;
+  padding: 0.85rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  z-index: 2000;
+  animation: slideUpToast 0.2s ease-out;
+}
+
+@keyframes slideUpToast {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

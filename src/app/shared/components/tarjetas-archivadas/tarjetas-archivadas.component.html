@@ -1,0 +1,126 @@
+<div class="archivadas-overlay" (click)="cerrar.emit()">
+  <div class="archivadas-panel" (click)="$event.stopPropagation()">
+
+    <!-- Cabecera del Panel de Archivadas -->
+    <header class="archivadas-header">
+      <div class="header-info">
+        <div class="title-wrap">
+          <span class="icon">📦</span>
+          <h2>Tablero de Tarjetas Archivadas</h2>
+          <span class="count-badge">{{ archivadas.length }}</span>
+        </div>
+        <p class="subtitle">
+          Tarjetas completadas o retiradas del flujo activo. Puedes consultarlas o restaurarlas al tablero.
+        </p>
+      </div>
+
+      <button class="btn-close" (click)="cerrar.emit()" title="Cerrar">✕</button>
+    </header>
+
+    <!-- Barra de Filtros y Búsqueda -->
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          placeholder="Buscar en tarjetas archivadas (título, vehículo, etiqueta)..."
+          [(ngModel)]="filtroTexto"
+        />
+        @if (filtroTexto) {
+          <button class="btn-clear" (click)="filtroTexto = ''">✕</button>
+        }
+      </div>
+
+      @if (tableroActual) {
+        <label class="filter-toggle">
+          <input type="checkbox" [(ngModel)]="verSoloDeEsteTablero" />
+          <span>Solo de <strong>{{ tableroActual.nombre }}</strong></span>
+        </label>
+      }
+    </div>
+
+    <!-- Contenido: Presentación tipo Tabla -->
+    <div class="table-container">
+      <table class="archivadas-table">
+        <thead>
+          <tr>
+            <th class="col-check">Estado</th>
+            <th class="col-titulo">Tarjeta</th>
+            <th class="col-referencia">Vehículo / Detalle</th>
+            <th class="col-columna">Columna Origen</th>
+            <th class="col-etiquetas">Etiquetas</th>
+            <th class="col-fecha">Fecha Archivado</th>
+            <th class="col-acciones">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of archivadas; track t.id) {
+            <tr>
+              <!-- Check redondo completado / archivado -->
+              <td class="col-check">
+                <span class="archived-check-icon" title="Archivada">✓</span>
+              </td>
+
+              <!-- Título -->
+              <td class="col-titulo">
+                <span class="card-title">{{ t.titulo }}</span>
+              </td>
+
+              <!-- Referencia / Subtítulo -->
+              <td class="col-referencia">
+                <span class="card-ref">{{ t.descripcion || '-' }}</span>
+              </td>
+
+              <!-- Columna de procedencia -->
+              <td class="col-columna">
+                <span class="col-badge">{{ t.origenColumnaNombre || 'General' }}</span>
+              </td>
+
+              <!-- Etiquetas -->
+              <td class="col-etiquetas">
+                <div class="tags-wrap">
+                  @for (etq of t.etiquetas; track etq.id) {
+                    <span class="tag-chip" [style.background]="etq.color">{{ etq.texto }}</span>
+                  }
+                  @if (!t.etiquetas.length) {
+                    <span class="text-muted">-</span>
+                  }
+                </div>
+              </td>
+
+              <!-- Fecha de archivado -->
+              <td class="col-fecha">
+                <span class="date-text">{{ formatearFecha(t.fechaArchivado) }}</span>
+              </td>
+
+              <!-- Acciones: Restaurar / Eliminar permanente -->
+              <td class="col-acciones">
+                <div class="actions-group">
+                  @if (tableroActual) {
+                    <button class="btn-restore" (click)="restaurar(t)" title="Restaurar al tablero actual">
+                      ↩ Restaurar
+                    </button>
+                  }
+                  <button class="btn-delete" (click)="eliminarPermanente(t.id)" title="Eliminar definitivamente">
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="empty-cell">
+                <div class="empty-state">
+                  <span class="empty-icon">📭</span>
+                  <h4>No hay tarjetas archivadas</h4>
+                  <p>Cuando marques el check redondo en una tarjeta, se archivará y aparecerá aquí.</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>

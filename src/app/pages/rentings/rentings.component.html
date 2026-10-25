@@ -1,0 +1,30 @@
+<div class="rentings">
+  <div class="rentings__header">
+    <h1>🚗 Gestión de Rentings</h1>
+    <p class="rentings__subtitle">Selecciona un tablero operativo para gestionar contratos, entregas y flotas</p>
+  </div>
+
+  <div class="tableros-grid">
+    @for (tablero of tableros; track tablero.id) {
+      <div class="tablero-card" (click)="abrirTablero(tablero)">
+        <div class="tablero-card__cover" [style.background]="'linear-gradient(135deg, ' + tablero.color + ' 0%, ' + tablero.colorDark + ' 100%)'">
+          <span class="tablero-card__icono">{{ tablero.icono }}</span>
+        </div>
+        <div class="tablero-card__body">
+          <h3 class="tablero-card__titulo">{{ tablero.nombre }}</h3>
+          <p class="tablero-card__desc">{{ tablero.descripcion }}</p>
+          <div class="tablero-card__stats">
+
+            <span class="stat">
+              <span class="stat__icon">🃏</span>
+              {{ getTotalTarjetas(tablero) }} Tarjetas
+            </span>
+          </div>
+        </div>
+        <div class="tablero-card__footer" [style.background]="tablero.color">
+          <span>Abrir tablero →</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

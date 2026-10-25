@@ -1,0 +1,327 @@
+@if (tablero) {
+  <div class="tablero-view">
+
+    <!-- CABECERA -->
+    <div class="tablero-header" [style.background]="'linear-gradient(135deg, ' + tablero.color + ' 0%, ' + tablero.colorDark + ' 100%)'">
+      <div class="header-left">
+        <button class="btn-back" (click)="volver()">← Volver</button>
+        <div class="tablero-header__info">
+          <span class="tablero-header__icono">{{ tablero.icono }}</span>
+          <div>
+            <h1 class="tablero-header__titulo">{{ tablero.nombre }}</h1>
+            <p class="tablero-header__desc">{{ tablero.descripcion }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Barra de búsqueda integrada y limpia -->
+        <div class="search-field">
+          <span class="search-field__icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Buscar por etiqueta, título o vehículo..."
+            [(ngModel)]="textoBusqueda"
+          />
+          @if (textoBusqueda) {
+            <button class="search-field__clear" (click)="limpiarBusqueda()">✕</button>
+          }
+        </div>
+
+        <button class="btn-manage-etq" (click)="gestorEtiquetasAbierto = true">
+          <span>🏷️</span> Gestionar Etiquetas
+        </button>
+
+        <button class="btn-archived" (click)="modalArchivadasAbierto = true">
+          <span>📦</span> Archivadas
+          @if (totalArchivadas > 0) {
+            <span class="btn-archived__badge">{{ totalArchivadas }}</span>
+          }
+        </button>
+
+        <button class="btn-add-col" (click)="abrirModalCrearColumna()">
+          <span>+</span> Nueva Columna
+        </button>
+      </div>
+    </div>
+
+    <!-- COLUMNAS -->
+    <div class="tablero-body">
+      <div class="columnas-wrapper" cdkDropListGroup>
+
+        @for (columna of tablero.columnas; track columna.id) {
+          <div class="columna">
+
+            <div class="columna__header" [style.border-top-color]="columna.color">
+              <div class="header-title-wrap">
+                <span class="columna__nombre">{{ columna.nombre }}</span>
+                <span class="columna__count" [style.background]="columna.color">
+                  {{ getTarjetasFiltradas(columna).length }}
+                </span>
+              </div>
+              <div class="columna__actions">
+                <button
+                  class="btn-col-action btn-add-card"
+                  (click)="abrirModalCrearTarjeta(columna)"
+                  title="Añadir tarjeta a esta columna"
+                >
+                  +
+                </button>
+                <button
+                  class="btn-col-action btn-delete-col"
+                  (click)="eliminarColumna(columna, $event)"
+                  title="Eliminar columna"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="columna__body"
+              cdkDropList
+              [id]="columna.id"
+              [cdkDropListData]="columna.tarjetas"
+              (cdkDropListDropped)="drop($event)"
+            >
+              @for (tarjeta of getTarjetasFiltradas(columna); track tarjeta.id) {
+                <div
+                  class="tarjeta"
+                  cdkDrag
+                  [cdkDragData]="tarjeta"
+                  (cdkDragStarted)="onDragStarted()"
+                  (cdkDragEnded)="onDragEnded()"
+                  (click)="abrirTarjeta(tarjeta)"
+                >
+                  <ng-template cdkDragPlaceholder>
+                    <div class="tarjeta-placeholder"></div>
+                  </ng-template>
+
+                  <!-- Check redondo para archivar tarjeta -->
+                  <button
+                    class="btn-card-check"
+                    (click)="archivarTarjetaCheck(tarjeta, columna, $event)"
+                    title="Marcar como completada y archivar"
+                  >
+                    <span class="check-circle"></span>
+                  </button>
+
+                  <!-- Botón borrar tarjeta en hover -->
+                  <button
+                    class="btn-card-quick-delete"
+                    (click)="eliminarTarjetaDirecta(tarjeta, columna, $event)"
+                    title="Eliminar tarjeta"
+                  >
+                    🗑️
+                  </button>
+
+                  @if (tarjeta.etiquetas.length > 0) {
+                    <div class="tarjeta__etiquetas">
+                      @for (etiqueta of tarjeta.etiquetas; track etiqueta.id) {
+                        <span class="etiqueta" [style.background]="etiqueta.color">
+                          {{ etiqueta.texto }}
+                        </span>
+                      }
+                    </div>
+                  }
+
+                  <p class="tarjeta__titulo">{{ tarjeta.titulo }}</p>
+
+                  @if (tarjeta.descripcion) {
+                    <p class="tarjeta__desc">{{ tarjeta.descripcion }}</p>
+                  }
+
+                  <div class="tarjeta__footer">
+                    <span class="prioridad" [class]="prioridadClass(tarjeta.prioridad)">
+                      {{ prioridadLabel(tarjeta.prioridad) }}
+                    </span>
+                    @if (tarjeta.incidencia && tarjeta.incidencia !== 'Sin incidencia') {
+                      <span class="incidencia-badge" [title]="tarjeta.incidencia">
+                        ⚠️ {{ tarjeta.incidencia }}
+                      </span>
+                    }
+                    @if (tarjeta.comentarios.length > 0) {
+                      <span class="comentarios-badge">
+                        💬 {{ tarjeta.comentarios.length }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (getTarjetasFiltradas(columna).length === 0) {
+                <div class="columna__vacia">
+                  {{ textoBusqueda ? 'Sin coincidencias' : 'Sin tarjetas' }}
+                </div>
+              }
+            </div>
+
+            <!-- Botón inferior para añadir tarjeta rápido -->
+            <div class="columna__footer">
+              <button class="btn-add-card-bottom" (click)="abrirModalCrearTarjeta(columna)">
+                + Añadir tarjeta
+              </button>
+            </div>
+
+          </div>
+        }
+
+        <!-- Botón flotante para añadir columna al final de la fila -->
+        <div class="add-col-placeholder" (click)="abrirModalCrearColumna()">
+          <span>+ Añadir otra columna</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL DETALLE TARJETA -->
+  @if (tarjetaSeleccionada) {
+    <app-tarjeta-detalle
+      [tarjeta]="tarjetaSeleccionada"
+      [tableroColor]="tablero.color"
+      (cerrar)="cerrarModal()"
+      (eliminar)="onTarjetaEliminadaDesdeModal($event)"
+    />
+  }
+
+  <!-- MODAL GESTOR DE ETIQUETAS -->
+  @if (gestorEtiquetasAbierto) {
+    <app-etiquetas-manager
+      (cerrar)="gestorEtiquetasAbierto = false"
+    />
+  }
+
+  <!-- TABLERO DE TARJETAS ARCHIVADAS (TIPO TABLA) -->
+  @if (modalArchivadasAbierto) {
+    <app-tarjetas-archivadas
+      [tableroActual]="tablero"
+      (cerrar)="modalArchivadasAbierto = false"
+    />
+  }
+
+  <!-- MODAL CREAR COLUMNA -->
+  @if (modalCrearColumnaAbierto) {
+    <div class="modal-overlay" (click)="modalCrearColumnaAbierto = false">
+      <div class="modal-dialog" (click)="$event.stopPropagation()">
+        <div class="modal-dialog__header">
+          <h3>Nueva Columna</h3>
+          <button class="btn-close" (click)="modalCrearColumnaAbierto = false">✕</button>
+        </div>
+        <div class="modal-dialog__body">
+          <div class="form-group">
+            <label>Nombre de la columna</label>
+            <input
+              type="text"
+              placeholder="Ej. En Espera de Peritaje..."
+              [(ngModel)]="nuevoNombreColumna"
+              (keydown.enter)="guardarNuevaColumna()"
+            />
+          </div>
+          <div class="form-group">
+            <label>Color distintivo</label>
+            <div class="color-palette">
+              @for (c of paletaColores; track c) {
+                <button
+                  type="button"
+                  class="color-dot"
+                  [style.background-color]="c"
+                  [class.selected]="nuevoColorColumna === c"
+                  (click)="nuevoColorColumna = c"
+                ></button>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="modal-dialog__footer">
+          <button class="btn-secondary" (click)="modalCrearColumnaAbierto = false">Cancelar</button>
+          <button
+            class="btn-primary"
+            [disabled]="!nuevoNombreColumna.trim()"
+            (click)="guardarNuevaColumna()"
+          >
+            Crear Columna
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL CREAR TARJETA -->
+  @if (modalCrearTarjetaAbierto && columnaDestinoParaTarjeta) {
+    <div class="modal-overlay" (click)="modalCrearTarjetaAbierto = false">
+      <div class="modal-dialog modal-dialog--wide" (click)="$event.stopPropagation()">
+        <div class="modal-dialog__header">
+          <div>
+            <h3>Nueva Tarjeta</h3>
+            <span class="subtitle">En columna: <strong>{{ columnaDestinoParaTarjeta.nombre }}</strong></span>
+          </div>
+          <button class="btn-close" (click)="modalCrearTarjetaAbierto = false">✕</button>
+        </div>
+        <div class="modal-dialog__body">
+          <div class="form-group">
+            <label>Título de la tarjeta *</label>
+            <input
+              type="text"
+              placeholder="Ej. Sustitución puerta copiloto..."
+              [(ngModel)]="nuevoTituloTarjeta"
+            />
+          </div>
+          <div class="form-group">
+            <label>Subtítulo o referencia rápida (vehículo/matrícula)</label>
+            <input
+              type="text"
+              placeholder="Ej. Audi A4 · 9012-GHI"
+              [(ngModel)]="nuevaDescTarjeta"
+            />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Prioridad</label>
+              <select [(ngModel)]="nuevaPrioridadTarjeta">
+                <option value="alta">↑ Alta</option>
+                <option value="media">→ Media</option>
+                <option value="baja">↓ Baja</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Etiquetas</label>
+            <div class="etq-chips-selector">
+              @for (etq of todasLasEtiquetas; track etq.id) {
+                <button
+                  type="button"
+                  class="etq-chip-select"
+                  [class.selected]="nuevasEtiquetasSeleccionadas.includes(etq)"
+                  (click)="toggleEtiquetaNuevaTarjeta(etq)"
+                >
+                  <span class="etq-dot" [style.background]="etq.color"></span>
+                  {{ etq.texto }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Descripción detallada</label>
+            <textarea
+              rows="3"
+              placeholder="Detalles técnicos, piezas necesarias, observaciones..."
+              [(ngModel)]="nuevaDescDetalleTarjeta"
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-dialog__footer">
+          <button class="btn-secondary" (click)="modalCrearTarjetaAbierto = false">Cancelar</button>
+          <button
+            class="btn-primary"
+            [disabled]="!nuevoTituloTarjeta.trim()"
+            (click)="guardarNuevaTarjeta()"
+          >
+            Añadir Tarjeta
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}

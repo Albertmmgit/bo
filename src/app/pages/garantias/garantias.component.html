@@ -1,0 +1,147 @@
+<div class="garantias-page">
+
+  <!-- BARRA SUPERIOR FIJA / STICKY -->
+  <header class="garantias-topbar">
+    <div class="topbar-left">
+      <div class="title-with-badge">
+        <h1>🛡️ Expedientes de Garantías</h1>
+        <span class="badge-count">{{ expedientes.length }} registros</span>
+      </div>
+      <p class="subtitle">Edición en línea de expedientes técnicos y reclamaciones de garantía</p>
+    </div>
+
+    <div class="topbar-right">
+      <button class="btn btn-secondary" (click)="agregarFila()">
+        + Añadir Expediente
+      </button>
+      <button class="btn btn-primary" (click)="enviar()">
+        <span>📤</span> Enviar Cambios
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR DE LA TABLA EDITABLE -->
+  <main class="table-container">
+    <div class="table-wrapper">
+      <table class="editable-table">
+        <thead>
+          <tr>
+            <th class="col-expediente">Nº Expediente</th>
+            <th class="col-matricula">Matrícula</th>
+            <th class="col-vehiculo">Marca y Modelo</th>
+            <th class="col-cliente">Cliente</th>
+            <th class="col-averia">Tipo Avería</th>
+            <th class="col-estado">Estado</th>
+            <th class="col-coste">Coste Est. (€)</th>
+            <th class="col-fecha">Fecha Apertura</th>
+            <th class="col-obs">Observaciones</th>
+            <th class="col-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of expedientes; track item.expediente; let i = $index) {
+            <tr>
+              <!-- Columna 1: No editable -->
+              <td class="cell-readonly">
+                <span class="expediente-pill">{{ item.expediente }}</span>
+              </td>
+
+              <!-- Columnas editables -->
+              <td class="cell-editable">
+                <input
+                  type="text"
+                  [(ngModel)]="item.matricula"
+                  placeholder="0000-XXX"
+                  class="input-table input-matricula"
+                />
+              </td>
+
+              <td class="cell-editable">
+                <input
+                  type="text"
+                  [(ngModel)]="item.marcaModelo"
+                  placeholder="Ej. Audi A3"
+                  class="input-table"
+                />
+              </td>
+
+              <td class="cell-editable">
+                <input
+                  type="text"
+                  [(ngModel)]="item.cliente"
+                  placeholder="Nombre cliente"
+                  class="input-table"
+                />
+              </td>
+
+              <td class="cell-editable">
+                <input
+                  type="text"
+                  [(ngModel)]="item.tipoAveria"
+                  placeholder="Descripción de la avería"
+                  class="input-table"
+                />
+              </td>
+
+              <td class="cell-editable">
+                <select
+                  [(ngModel)]="item.estado"
+                  class="select-table"
+                  [attr.data-estado]="item.estado"
+                >
+                  @for (st of estadosDisponibles; track st) {
+                    <option [value]="st">{{ st }}</option>
+                  }
+                </select>
+              </td>
+
+              <td class="cell-editable">
+                <input
+                  type="number"
+                  [(ngModel)]="item.costeEstimado"
+                  step="0.01"
+                  class="input-table text-right font-mono"
+                />
+              </td>
+
+              <td class="cell-editable">
+                <input
+                  type="date"
+                  [(ngModel)]="item.fechaApertura"
+                  class="input-table"
+                />
+              </td>
+
+              <td class="cell-editable">
+                <input
+                  type="text"
+                  [(ngModel)]="item.observaciones"
+                  placeholder="Notas adicionales..."
+                  class="input-table"
+                />
+              </td>
+
+              <td class="cell-actions">
+                <button
+                  class="btn-delete"
+                  (click)="eliminarFila(i)"
+                  title="Eliminar fila"
+                >
+                  🗑️
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- NOTIFICACIÓN TOAST TRAS ENVIAR -->
+  @if (toastVisible) {
+    <div class="toast-notification">
+      {{ mensajeToast }}
+    </div>
+  }
+
+</div>

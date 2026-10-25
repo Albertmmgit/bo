@@ -1,0 +1,118 @@
+$surface: #ffffff;
+$surface-alt: #f1f3f4;
+$border: #e0e0e0;
+$text-primary: #202124;
+$text-secondary: #5f6368;
+$radius: 12px;
+$shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.15);
+$transition: 0.2s ease;
+
+.rentings {
+  padding: 2rem;
+  min-height: 100%;
+
+  &__header {
+    margin-bottom: 2rem;
+
+    h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: $text-primary;
+    }
+  }
+
+  &__subtitle {
+    margin: 0;
+    color: $text-secondary;
+    font-size: 0.95rem;
+  }
+}
+
+.tableros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.tablero-card {
+  background: $surface;
+  border-radius: $radius;
+  overflow: hidden;
+  box-shadow: $shadow;
+  cursor: pointer;
+  transition: transform $transition, box-shadow $transition;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-hover;
+
+    .tablero-card__footer {
+      opacity: 1;
+    }
+  }
+
+  &__cover {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__icono {
+    font-size: 2.5rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  &__body {
+    padding: 1rem 1.25rem;
+    flex: 1;
+  }
+
+  &__titulo {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  &__desc {
+    margin: 0 0 0.75rem;
+    font-size: 0.82rem;
+    color: $text-secondary;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__stats {
+    display: flex;
+    gap: 1rem;
+  }
+
+  &__footer {
+    padding: 0.6rem 1.25rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    opacity: 0;
+    transition: opacity $transition;
+  }
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: $text-secondary;
+
+  &__icon {
+    font-size: 0.85rem;
+  }
+}

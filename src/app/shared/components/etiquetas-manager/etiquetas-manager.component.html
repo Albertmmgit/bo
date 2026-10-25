@@ -1,0 +1,87 @@
+<div class="manager-backdrop" (click)="cerrar.emit()">
+  <div class="manager-card" (click)="$event.stopPropagation()">
+    <div class="manager-header">
+      <div class="title-wrap">
+        <span class="header-icon">🏷️</span>
+        <h3>Gestión de Etiquetas</h3>
+      </div>
+      <button class="btn-close" (click)="cerrar.emit()">✕</button>
+    </div>
+
+    <div class="manager-body">
+      <!-- Formulario para crear nueva etiqueta -->
+      <div class="crear-box">
+        <label>Crear nueva etiqueta</label>
+        <div class="input-row">
+          <input
+            type="text"
+            placeholder="Nombre de la etiqueta..."
+            [(ngModel)]="nuevoTexto"
+            (keydown.enter)="crear()"
+          />
+          <button class="btn-create" (click)="crear()" [disabled]="!nuevoTexto.trim()">
+            Añadir
+          </button>
+        </div>
+        <!-- Selector de colores -->
+        <div class="color-palette">
+          @for (c of paletaColores; track c) {
+            <button
+              type="button"
+              class="color-dot"
+              [style.background-color]="c"
+              [class.selected]="nuevoColor === c"
+              (click)="nuevoColor = c"
+            ></button>
+          }
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Lista de etiquetas existentes -->
+      <div class="etiquetas-list-section">
+        <label>Etiquetas existentes ({{ etiquetas.length }})</label>
+        <div class="etiquetas-list">
+          @for (etq of etiquetas; track etq.id) {
+            <div class="etiqueta-row" [class.editing]="etiquetaEnEdicion?.id === etq.id">
+              @if (etiquetaEnEdicion?.id === etq.id) {
+                <!-- Modo edición -->
+                <div class="edit-mode">
+                  <div class="edit-inputs">
+                    <input type="text" [(ngModel)]="editTexto" />
+                    <div class="color-palette mini">
+                      @for (c of paletaColores; track c) {
+                        <button
+                          type="button"
+                          class="color-dot mini"
+                          [style.background-color]="c"
+                          [class.selected]="editColor === c"
+                          (click)="editColor = c"
+                        ></button>
+                      }
+                    </div>
+                  </div>
+                  <div class="edit-actions">
+                    <button class="btn-save" (click)="guardarEdicion()">✓</button>
+                    <button class="btn-cancel" (click)="cancelarEdicion()">✕</button>
+                  </div>
+                </div>
+              } @else {
+                <!-- Modo lectura -->
+                <div class="pill-preview">
+                  <span class="color-indicator" [style.background-color]="etq.color"></span>
+                  <span class="etq-name">{{ etq.texto }}</span>
+                </div>
+                <div class="row-actions">
+                  <button class="btn-action" (click)="iniciarEdicion(etq)" title="Editar">✏️</button>
+                  <button class="btn-action btn-danger" (click)="eliminar(etq.id)" title="Eliminar">🗑️</button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
